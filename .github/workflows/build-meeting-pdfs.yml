@@ -1,0 +1,85 @@
+name: Build Meeting PDFs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "compte-rendus/CAA-FR_compte-rendu_*.md"
+      - ".github/workflows/build-meeting-pdfs.yml"
+  pull_request:
+    paths:
+      - "compte-rendus/CAA-FR_compte-rendu_*.md"
+      - ".github/workflows/build-meeting-pdfs.yml"
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push PDFs back to repo
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for git diff base..head and commits
+
+      - name: Install pandoc and XeLaTeX dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pandoc \
+            fonts-linuxlibertine \
+            texlive-fonts-recommended \
+            texlive-lang-french \
+            texlive-latex-extra \
+            texlive-xetex
+
+      - name: Compile only changed meeting markdown files into pdf/
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p pdf
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+
+          # Find changed meeting notes
+          mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No matching meeting markdown files changed."
+            exit 0
+          fi
+
+          for file in "${files[@]}"; do
+            # Put PDFs under pdf/ and mirror the original directory
+            out="pdf/${file%.md}.pdf"
+            mkdir -p "$(dirname "$out")"
+
+            echo "Compiling $file -> $out"
+            pandoc "$file" --pdf-engine=xelatex -o "$out"
+          done
+
+      - name: Commit PDFs to repo (push only)
+        if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # If nothing changed, don't commit
+          if git status --porcelain | grep -q '^??\|^ M\|^A '; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            git add pdf/
+            git commit -m "Update compiled meeting PDFs" || exit 0
+            git push
+          else
+            echo "No changes to commit."
+          fi
