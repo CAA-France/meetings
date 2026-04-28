@@ -23,34 +23,30 @@ jobs:
         with:
           fetch-depth: 0  # needed for git diff base..head and commits
 
-      - name: Install pandoc and XeLaTeX dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            pandoc \
-            fonts-linuxlibertine \
-            texlive-fonts-recommended \
-            texlive-lang-french \
-            texlive-latex-extra \
-            texlive-xetex
-
       - name: Compile only changed meeting markdown files into pdf/
         shell: bash
+        env:
+          PANDOC_LATEX_IMAGE: pandoc/latex:latest-ubuntu
         run: |
           set -euo pipefail
 
           mkdir -p pdf
 
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            mapfile -t files < <(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort -u)
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
             base="${{ github.event.pull_request.base.sha }}"
             head="${{ github.event.pull_request.head.sha }}"
+            mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
           else
             base="${{ github.event.before }}"
             head="${{ github.sha }}"
+            if [[ "$base" =~ ^0+$ ]]; then
+              mapfile -t files < <(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort -u)
+            else
+              mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
+            fi
           fi
-
-          # Find changed meeting notes
-          mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
 
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No matching meeting markdown files changed."
@@ -63,8 +59,21 @@ jobs:
             mkdir -p "$(dirname "$out")"
 
             echo "Compiling $file -> $out"
-            pandoc "$file" --pdf-engine=xelatex -o "$out"
+            docker run --rm \
+              -v "$PWD:/data" \
+              -w /data \
+              "$PANDOC_LATEX_IMAGE" \
+              "$file" \
+              --pdf-engine=xelatex \
+              -o "$out"
           done
+
+      - name: Upload PDFs as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: meeting-pdfs
+          path: pdf/**/*.pdf
+          if-no-files-found: ignore
 
       - name: Commit PDFs to repo (push only)
         if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
