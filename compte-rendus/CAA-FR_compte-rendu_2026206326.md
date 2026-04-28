@@ -124,6 +124,7 @@ Simon nous informe que le Journal of Archaeological Science s'est muni de « [Re
  
 Idée de mettre en place un workflow (sur *Github*, voire, mieux, *Codeberg*) pour assurer la compilation des markdown des compte-rendus de réunion du CAA-FR. 
  
+test test 
 
 
 
