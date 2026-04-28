@@ -69,9 +69,8 @@ jobs:
               fc-match "Linux Libertine O"
 
               for file in "$@"; do
-                # Put PDFs under pdf/ and mirror the original directory
-                out="pdf/${file%.md}.pdf"
-                mkdir -p "$(dirname "$out")"
+                # Put PDFs directly under pdf/
+                out="pdf/$(basename "${file%.md}").pdf"
 
                 echo "Compiling $file -> $out"
                 pandoc "$file" --pdf-engine=xelatex -o "$out"
