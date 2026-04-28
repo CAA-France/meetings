@@ -53,20 +53,30 @@ jobs:
             exit 0
           fi
 
-          for file in "${files[@]}"; do
-            # Put PDFs under pdf/ and mirror the original directory
-            out="pdf/${file%.md}.pdf"
-            mkdir -p "$(dirname "$out")"
+          docker run --rm \
+            --user root \
+            -v "$PWD:/data" \
+            -w /data \
+            --entrypoint bash \
+            "$PANDOC_LATEX_IMAGE" \
+            -lc '
+              set -euo pipefail
 
-            echo "Compiling $file -> $out"
-            docker run --rm \
-              -v "$PWD:/data" \
-              -w /data \
-              "$PANDOC_LATEX_IMAGE" \
-              "$file" \
-              --pdf-engine=xelatex \
-              -o "$out"
-          done
+              apt-get update
+              apt-get install -y --no-install-recommends fontconfig fonts-linuxlibertine
+              rm -rf /var/lib/apt/lists/*
+              fc-cache -f
+              fc-match "Linux Libertine O"
+
+              for file in "$@"; do
+                # Put PDFs under pdf/ and mirror the original directory
+                out="pdf/${file%.md}.pdf"
+                mkdir -p "$(dirname "$out")"
+
+                echo "Compiling $file -> $out"
+                pandoc "$file" --pdf-engine=xelatex -o "$out"
+              done
+            ' bash "${files[@]}"
 
       - name: Upload PDFs as workflow artifact
         uses: actions/upload-artifact@v4
