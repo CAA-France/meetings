@@ -33,3 +33,6 @@ Compiler au format PDF :
 pandoc CAA-FR_compte-rendu_AAAAMMJJ.md --pdf-engine=xelatex -o CAA-FR_compte-rendu_AAAAMMJJ.pdf
 ```
 
+## TODO
+
+Simon : expliquer comment utiliser le workflow en quelques lignes
