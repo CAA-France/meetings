@@ -1,12 +1,10 @@
-name: Build Meeting PDFs
+name: Build Meeting PDF
 
 on:
   workflow_dispatch:
   push:
-    paths:
-      - "compte-rendus/CAA-FR_compte-rendu_*.md"
-      - ".github/workflows/build-meeting-pdfs.yml"
-  pull_request:
+    branches:
+      - main
     paths:
       - "compte-rendus/CAA-FR_compte-rendu_*.md"
       - ".github/workflows/build-meeting-pdfs.yml"
@@ -14,90 +12,73 @@ on:
 jobs:
   build-pdf:
     runs-on: ubuntu-latest
+    container:
+      image: pandoc/latex:latest-ubuntu
+      options: --user root
+    defaults:
+      run:
+        shell: bash
     permissions:
-      contents: write   # needed to push PDFs back to repo
+      contents: write
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # needed for git diff base..head and commits
+      - name: Install missing tools
+        run: |
+          set -euo pipefail
 
-      - name: Compile only changed meeting markdown files into pdf/
-        shell: bash
-        env:
-          PANDOC_LATEX_IMAGE: pandoc/latex:latest-ubuntu
+          apt-get update
+          apt-get install -y --no-install-recommends fontconfig fonts-linuxlibertine git ca-certificates
+          fc-cache -f
+
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Build the PDF
         run: |
           set -euo pipefail
 
           mkdir -p pdf
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            mapfile -t files < <(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort -u)
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="${{ github.event.pull_request.base.sha }}"
-            head="${{ github.event.pull_request.head.sha }}"
-            mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
-          else
-            base="${{ github.event.before }}"
-            head="${{ github.sha }}"
-            if [[ "$base" =~ ^0+$ ]]; then
-              mapfile -t files < <(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort -u)
-            else
-              mapfile -t files < <(git diff --name-only "$base" "$head" -- '**/CAA-FR_compte-rendu_*.md' | sort -u)
-            fi
+          meeting_file="$(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort | tail -n 1)"
+
+          if [ -z "$meeting_file" ]; then
+            echo "No meeting file found."
+            exit 1
           fi
 
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "No matching meeting markdown files changed."
-            exit 0
-          fi
+          pdf_file="pdf/$(basename "${meeting_file%.md}").pdf"
 
-          docker run --rm \
-            --user root \
-            -v "$PWD:/data" \
-            -w /data \
-            --entrypoint bash \
-            "$PANDOC_LATEX_IMAGE" \
-            -lc '
-              set -euo pipefail
+          echo "Building: $meeting_file"
+          echo "PDF path: $pdf_file"
 
-              apt-get update
-              apt-get install -y --no-install-recommends fontconfig fonts-linuxlibertine
-              rm -rf /var/lib/apt/lists/*
-              fc-cache -f
-              fc-match "Linux Libertine O"
+          pandoc "$meeting_file" --pdf-engine=xelatex -o "$pdf_file"
 
-              for file in "$@"; do
-                # Put PDFs directly under pdf/
-                out="pdf/$(basename "${file%.md}").pdf"
-
-                echo "Compiling $file -> $out"
-                pandoc "$file" --pdf-engine=xelatex -o "$out"
-              done
-            ' bash "${files[@]}"
-
-      - name: Upload PDFs as workflow artifact
+      - name: Upload PDF to this workflow run
         uses: actions/upload-artifact@v4
         with:
-          name: meeting-pdfs
-          path: pdf/**/*.pdf
-          if-no-files-found: ignore
+          name: meeting-pdf
+          path: pdf/*.pdf
 
-      - name: Commit PDFs to repo (push only)
-        if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        shell: bash
+      - name: Publish PDF branch
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
-          # If nothing changed, don't commit
-          if git status --porcelain | grep -q '^??\|^ M\|^A '; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+          publish_dir="$RUNNER_TEMP/pdf-branch"
+          mkdir -p "$publish_dir"
+          cp pdf/*.pdf "$publish_dir"/
 
-            git add pdf/
-            git commit -m "Update compiled meeting PDFs" || exit 0
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          # This branch is replaced each time and contains only the PDF.
+          cd "$publish_dir"
+
+          git init
+          git checkout -b pdf
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update compiled meeting PDF"
+
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin pdf
