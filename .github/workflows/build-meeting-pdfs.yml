@@ -22,30 +22,23 @@ jobs:
       contents: write
 
     steps:
-      - name: Install missing tools
+      - name: Install Linux Libertine
         run: |
-          set -euo pipefail
-
           apt-get update
-          apt-get install -y --no-install-recommends fontconfig fonts-linuxlibertine git ca-certificates
+          apt-get install -y --no-install-recommends fonts-linuxlibertine git ca-certificates
           fc-cache -f
 
       - name: Check out main
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Build the PDF
+      - name: Build PDF
         run: |
-          set -euo pipefail
-
           mkdir -p pdf
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-          meeting_file="$(git ls-files 'compte-rendus/CAA-FR_compte-rendu_*.md' | sort | tail -n 1)"
-
-          if [ -z "$meeting_file" ]; then
-            echo "No meeting file found."
-            exit 1
-          fi
-
+          meeting_file="$(git log -1 --format= --name-only --diff-filter=AM -- 'compte-rendus/CAA-FR_compte-rendu_*.md' | head -n 1)"
           pdf_file="pdf/$(basename "${meeting_file%.md}").pdf"
 
           echo "Building: $meeting_file"
@@ -64,13 +57,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-
           publish_dir="$RUNNER_TEMP/pdf-branch"
           mkdir -p "$publish_dir"
           cp pdf/*.pdf "$publish_dir"/
 
-          # This branch is replaced each time and contains only the PDF.
           cd "$publish_dir"
 
           git init
