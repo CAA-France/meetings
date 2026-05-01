@@ -37,7 +37,7 @@ Présent·e·s
 
 ## Sous titre 2
 
-## Parce qu'il fau bien
+## Parce qu'il faut bien
 
 > essayer d'autre truc de markdown
 > essayer d'autre truc de markdown
@@ -45,3 +45,6 @@ Présent·e·s
 
 Et que se passe-t-il si on regarde [les liens](http://fsf.org)?
 
+oou des imaes comme celle là: 
+
+![](https://caafrance.hypotheses.org/files/2024/10/France-colour.png)

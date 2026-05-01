@@ -25,7 +25,7 @@ urlcolor: teal
 ---
 ```
 
-Il peut être necessaire d'installer au préalable la font Linux Libertine sur votre machine : <https://libertine-fonts.org/>.
+Il peut être nécessaire d'installer au préalable la font Linux Libertine sur votre machine : <https://libertine-fonts.org/>.
 
 Compiler au format PDF :
 
@@ -35,7 +35,7 @@ pandoc CAA-FR_compte-rendu_AAAAMMJJ.md --pdf-engine=xelatex -o CAA-FR_compte-ren
 
 ## Compilation des comptes rendu via github actions:
 
-Pour compiler un compte rendu, ajoutez le dans le dossier `compte-rendus/` en suivant le format décrit dans la section precédént.
+Pour compiler un compte rendu, ajoutez le dans le dossier `compte-rendus/` en suivant le format décrit dans la section précédente.
 Ajouté le au repo git:
 
 ```bash
@@ -44,6 +44,6 @@ git commit -m "Compte rendu du 17 Avril 2026"
 git push
 ```
 
-Un fois ça fait, le workflow va compiler le markdown et le mettre dans la branch "pdf". Le pdf sera disponible une fois la checkmark vert appairait. 
+Un fois ça fait, le workflow va compiler le markdown et le mettre dans la branch "pdf". Le pdf sera disponible une fois que la checkmark verte appairait. Il vous faudra ensuite cliquer sur la liste des brancher et sélectionner "pdf" pour pouvoir télécharger le pdf final.
 
 ![](images/pdf_branch.jpg)
