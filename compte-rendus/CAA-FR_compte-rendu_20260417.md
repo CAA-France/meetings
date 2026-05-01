@@ -47,4 +47,4 @@ Et que se passe-t-il si on regarde [les liens](http://fsf.org)?
 
 oou des imaes comme celle là: 
 
-![](https://caafrance.hypotheses.org/files/2024/10/France-colour.png)
+![](images/France-colour.png)
