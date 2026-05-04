@@ -35,8 +35,7 @@ pandoc CAA-FR_compte-rendu_AAAAMMJJ.md --pdf-engine=xelatex -o CAA-FR_compte-ren
 
 ## Compilation des comptes rendu via github actions:
 
-Pour compiler un compte rendu, ajoutez le dans le dossier `compte-rendus/` en suivant le format décrit dans la section précédente.
-Ajouté le au repo git:
+Pour compiler un compte rendu, ajoutez le dans le dossier `compte-rendus/` en suivant le format décrit dans la section précédente:
 
 ```bash
 git add compte-rendus/CAA-FR_compte-rendu_20260417.md
@@ -44,6 +43,6 @@ git commit -m "Compte rendu du 17 Avril 2026"
 git push
 ```
 
-Un fois ça fait, le workflow va compiler le markdown et le mettre dans la branch "pdf". Le pdf sera disponible une fois que la checkmark verte appairait. Il vous faudra ensuite cliquer sur la liste des brancher et sélectionner "pdf" pour pouvoir télécharger le pdf final.
+Un fois fait, le workflow va compiler le markdown et le mettre dans la branch "pdf". Le pdf sera disponible une fois que la checkmark verte appairaît. Il vous faudra ensuite cliquer sur la liste des branches et sélectionner "pdf" pour pouvoir télécharger le pdf final.
 
 ![](images/pdf_branch.jpg)
