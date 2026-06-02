@@ -1,8 +1,8 @@
-# Comptes-rendus de réunions du CAA-FR
+# Comptes-rendus de réunions du CAA-FR : compilation MD > PDF
 
 Voir, en ligne : <https://caafrance.hypotheses.org/comptes-rendus-caa-fr>.
 
-## Compilation en PDF
+## Compilation en local
 
 Installer pandoc : <https://pandoc.org/>.
 
@@ -33,9 +33,9 @@ Compiler au format PDF :
 pandoc CAA-FR_compte-rendu_AAAAMMJJ.md --pdf-engine=xelatex -o CAA-FR_compte-rendu_AAAAMMJJ.pdf
 ```
 
-## Compilation des comptes rendu via github actions:
+## Compilation via github actions:
 
-Pour compiler un compte rendu, ajoutez le dans le dossier `compte-rendus/` en suivant le format décrit dans la section précédente:
+Pour compiler un compte rendu, ajoutez le fichier .md dans le dossier `compte-rendus/` en suivant le format décrit dans la section précédente :
 
 ```bash
 git add compte-rendus/CAA-FR_compte-rendu_20260417.md
