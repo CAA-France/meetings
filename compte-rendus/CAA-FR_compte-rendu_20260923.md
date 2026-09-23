@@ -1,4 +1,3 @@
-
 ---
 
 author: "[[https://caafrance.hypotheses.org](https://caafrance.hypotheses.org)]([https://caafrance.hypotheses.org)](https://caafrance.hypotheses.org))"
@@ -22,8 +21,6 @@ toccolor: teal
 urlcolor: teal
 
 ---
-
-
 
 
 
