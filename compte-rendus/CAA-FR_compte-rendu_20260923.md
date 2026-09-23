@@ -1,25 +1,14 @@
 ---
-
-author: "[[https://caafrance.hypotheses.org](https://caafrance.hypotheses.org)]([https://caafrance.hypotheses.org)](https://caafrance.hypotheses.org))"
-
+author: "[https://caafrance.hypotheses.org](https://caafrance.hypotheses.org)"
 date: 2026-09-23
-
 lang: fr
-
 mainfont: Linux Libertine O
-
 secnumdepth: 2
-
 title: CAA-FR. Compte-rendu de la réunion des membres CAA-FR, 22 septembre 2026
-
 toc: yes
-
 toc-depth: 2
-
 toccolor: teal
-
 urlcolor: teal
-
 ---
 
 
@@ -82,7 +71,7 @@ Réunion en visioconférence le mardi 22 septembre 2026 de 17h00 à 18h45.
 
 
 
-Le site [Science conf]([https://acqua2027.sciencesconf.org/index)](https://acqua2027.sciencesconf.org/index)) a été ouvert par N. Frerebeau et les accès sont donnés aux organisateurs.
+Le site [Science conf](https://acqua2027.sciencesconf.org/index) a été ouvert par N. Frerebeau et les accès sont donnés aux organisateurs.
 
 
 
@@ -120,9 +109,9 @@ Pour rappel, le prochain colloque du GMPCA aura lieu du 31 mai au 4 juin 2027. I
 
 
 
-* Lizzie Scholtus communique sur le nouveau document de [Stratégie de science ouverte]([https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2026-09/MESRE\_SSO\_2026\_FR.pdf)](https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2026-09/MESRE\_SSO\_2026\_FR.pdf)) du Ministère
+* Lizzie Scholtus communique sur le nouveau document de [Stratégie de science ouverte](https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2026-09/MESRE\_SSO\_2026\_FR.pdf) du Ministère
 
-* Ouverture des inscriptions pour les [Journées d'actualités MASA+]([https://masa.hypotheses.org/8233)](https://masa.hypotheses.org/8233)) qui auront lieu du 5 au 6 novembre 2027 à Tours
+* Ouverture des inscriptions pour les [Journées d'actualités MASA+](https://masa.hypotheses.org/8233)) qui auront lieu du 5 au 6 novembre 2027 à Tours
 
 
 
